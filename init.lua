@@ -40,16 +40,31 @@ end
 -- 'minetest.get_perlin' and 'minetest.get_perlin_map'
 -- and automaticaly maintains buffer tables for better performance.
 
+local blocks_per_chunk = tonumber(minetest.settings:get("chunksize")) or 5
+local side_lenght = blocks_per_chunk * 16
+
 function noise_handler.get_noise_object(params, chunk_size)
+	local amplitude = 0
+	for i = 1, params.octaves do
+		amplitude = amplitude + math.pow(params.persist, i - 1)
+	end
+	amplitude = amplitude * params.scale
+
+	local min = amplitude + params.offset
+	local max = amplitude + params.offset
+
+
     local noise_object = {
         params = params,
-        chunk_size = chunk_size or {x = 80, y = 80, z = 80},
+        chunk_size = chunk_size or {x = side_lenght, y = side_lenght, z = side_lenght},
         buffer_2d = {},
         buffer_3d = {},
         get_2d = get_2d,
         get_3d = get_3d,
         get_2d_map_flat = get_2d_map_flat,
         get_3d_map_flat = get_3d_map_flat,
+		min = min,
+		max = max,
     }
 
     return noise_object
